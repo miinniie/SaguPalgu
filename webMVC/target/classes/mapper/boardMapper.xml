@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanwha.myapp.dao.BoardDAO">
+	<insert id="boardWriteOk">
+		<!-- 
+		insert into clothes(no, title, content, price, location, type, typesize, userid, ip)
+		values(clothesSq.nextval, #{title}, #{content} , #{price}, #{location}, #{type}, ${typesize}, #{userid},#{ip});
+		 -->
+		 
+		insert into clothes(no, title, content, price, location, type, typesize, userid, ip)
+		values(clothessq.nextval,#{title},#{content}, ${price}, #{location}, ${type}, ${typesize}, #{userid}, #{ip})
+	</insert>
+	<select id="totalRecord" resultType="int">
+		select count(no) cnt from clothes
+		<if test='searchWord != null'>
+			where ((title like '%${searchWord}%') or (content like '%${searchWord}%') or (location like '%${searchWord}%')) and (typesize=${searchKey}) and (type=${type})
+			<!-- where ${searchKey} like '%${searchWord}%' -->
+		</if>
+	</select>
+	<select id="boardList" resultType="com.hanwha.myapp.vo.BoardVO">
+	select no, title, price, location, type, typesize, userid, hit, writedate, pic from 
+		(select no, title, price, location, type, typesize, userid, hit, writedate, pic from 	
+			(select no, title, price, location, type, typesize, userid, hit, to_char(writedate, 'MM-DD HH:MI') writedate 
+			, substr(content, instr(content, 'src="')+5, (instr(content, '.jpg"')+4)-(instr(content, 'src="')+5)) as pic
+				from clothes
+				<if test='searchWord!=null'>
+					where ((title like '%${searchWord}%') or (content like '%${searchWord}%') or (location like '%${searchWord}%')) and (typesize=${searchKey}) and (type=${type})
+					<!-- where ${searchKey} like '%${searchWord}%' -->
+				</if>
+				order by no desc)
+			where rownum <![CDATA[<=]]>#{selectRecord} order by no asc)
+		where rownum <![CDATA[<=]]>#{pickRecord} order by no desc	
+	</select>
+	<update id="boardHitCount">
+		update clothes set hit = hit+1 where no=#{param1}
+	</update>
+	<select id="boardView" resultType="com.hanwha.myapp.vo.BoardVO">
+		select no, title, price, location, type, typesize, userid, content, hit, writedate from clothes
+		where no=#{param1}
+	</select>
+	<update id="boardEditOk">
+		update clothes set title=#{title}, price=${price}, location=#{location}, type=${type}, typesize=${typesize}, content=#{content}  
+		where no=#{no} and userid=#{userid}
+	</update>
+	<delete id="boardDel">
+		delete from clothes where no=#{param1} and userid=#{param2}
+	</delete>
+	
+	<select id="boardPic">
+		select substr(content, instr(content, 'src="')+5, (instr(content, '.jpg"')+4)-(instr(content, 'src="')+5)) as pic
+		from clothes where no=#{no};
+	</select>
+</mapper>
