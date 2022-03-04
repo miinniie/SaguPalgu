@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper
+  PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.hanwha.myapp.dao.MemberDAO">
+	<insert id="memberInsert">
+		insert into customer(num, userid, userpwd, username, tel, size1, size2, size3, size4, size5, icon, writedate)
+		values(customerSq.nextval, #{userid}, #{userpwd}, #{username}, #{tel}, ${size1}, ${size2}, ${size3}, ${size4}, ${size5}, ${icon}, sysdate)
+	</insert>
+	<select id="memberLogin" resultType="com.hanwha.myapp.vo.MemberVO">
+		select userid, username from customer
+		where userid=#{userid} and userpwd=#{userpwd}
+	</select>
+	<select id="getMember" resultType="com.hanwha.myapp.vo.MemberVO">
+		select userid, username, tel, size1, size2, size3, size4, size5, icon from customer
+		where userid=#{param1}
+	</select>
+	<update id="memberUpdate">
+		update customer set tel=#{tel}, size1=${size1}, size2=${size2}, size3=${size3}, size4=${size4}, size5=${size5}, icon=#{icon} where userid=#{userid} and userpwd=#{userpwd}
+	</update>
+</mapper>
